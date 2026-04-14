@@ -6,7 +6,7 @@
     "build": "nest build",
     "start": "nest start --entryFile apps/api/src/main",
     "start:dev": "nest start --watch --entryFile apps/api/src/main",
-    "start:prod": "node dist/apps/api/src/main.js",
+    "start:prod": "node dist/main.js",
     "dev": "pnpm run start:dev",
     "lint": "eslint \"{src,test}/**/*.ts\"",
     "test": "jest",
