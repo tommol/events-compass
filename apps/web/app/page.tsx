@@ -37,7 +37,7 @@ export default function HomePage() {
         <article className="landing-card">
           <h2>Zglos wydarzenie</h2>
           <p>Masz event? Dodaj go, aby inni mogli go latwo znalezc.</p>
-          <Link href="/wydarzenia/zglos" className="landing-card-link">
+          <Link href="/add-event" className="landing-card-link">
             Przejdz do formularza
           </Link>
         </article>
@@ -45,7 +45,7 @@ export default function HomePage() {
         <article className="landing-card">
           <h2>Subskrybuj powiadomienia</h2>
           <p>Ustaw filtr i otrzymuj alerty o nowych wydarzeniach.</p>
-          <Link href="/powiadomienia/subskrybuj" className="landing-card-link">
+          <Link href="/subscribe" className="landing-card-link">
             Ustaw subskrypcje
           </Link>
         </article>

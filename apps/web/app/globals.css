@@ -10,22 +10,19 @@
 body {
   margin: 0;
   min-height: 100vh;
-  background-image: url('/background.png');
-  background-size: cover;
-  background-position: center;
-  background-attachment: fixed;
-  background-repeat: no-repeat;
 }
 
 body::before {
   content: '';
   position: fixed;
   inset: 0;
-  background: rgba(255, 255, 255, 0.22);
-  backdrop-filter: grayscale(100%) contrast(92%) brightness(1.02);
-  -webkit-backdrop-filter: grayscale(100%) contrast(92%) brightness(1.02);
+  background-image: url('/background.png');
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  filter: grayscale(100%) contrast(95%) brightness(0.88);
   pointer-events: none;
-  z-index: 0;
+  z-index: -1;
 }
 
 .container {
@@ -117,7 +114,9 @@ body::before {
 }
 
 .event-search-input::placeholder {
-  color: #64748b;
+  color: #334155;
+  font-weight: 500;
+  opacity: 1;
 }
 
 .event-search-button {
@@ -324,4 +323,69 @@ body::before {
 ul {
   margin: 0.75rem 0 0;
   padding-left: 1.2rem;
+}
+
+.page-header {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  width: 100%;
+  background: rgba(241, 245, 249, 0.95);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  border-bottom: 1px solid rgba(148, 163, 184, 0.4);
+  padding: 1rem 1.25rem;
+  display: flex;
+  align-items: center;
+  gap: 2rem;
+  box-shadow: 0 2px 8px rgba(15, 23, 42, 0.08);
+}
+
+.page-header-logo {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.page-header-title {
+  margin: 0;
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #ec4899;
+  text-align: center;
+  flex: 1;
+}
+
+.page-wrapper {
+  position: relative;
+  z-index: 1;
+  min-height: 100vh;
+  background: linear-gradient(135deg, #ffffff 0%, #e2e8f0 100%);
+}
+
+.page-wrapper::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background: transparent;
+  pointer-events: none;
+  z-index: 0;
+}
+
+.page-content {
+  position: relative;
+  z-index: 1;
+  min-height: calc(100vh - 80px);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  padding: 3rem 1.25rem;
+}
+
+.page-section {
+  width: min(900px, 100%);
+  max-width: 900px;
+  margin: 0 auto;
 }
