@@ -30,10 +30,11 @@ ENV PORT=8080
 COPY package.json pnpm-lock.yaml pnpm-workspace.yaml turbo.json ./
 COPY apps/api/package.json apps/api/package.json
 COPY packages/shared/package.json packages/shared/package.json
+COPY apps/api/prisma apps/api/prisma
 
 RUN pnpm install --frozen-lockfile --prod
+RUN pnpm --filter api prisma:generate
 
-COPY --from=builder /app/apps/api/prisma ./apps/api/prisma
 COPY --from=builder /app/apps/api/dist ./apps/api/dist
 COPY --from=builder /app/apps/api/scripts ./apps/api/scripts
 
