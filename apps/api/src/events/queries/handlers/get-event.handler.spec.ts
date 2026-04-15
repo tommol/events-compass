@@ -9,7 +9,7 @@ describe("GetEventQueryHandler", () => {
     const startAt = new Date("2026-06-15T18:00:00.000Z");
     const endAt = new Date("2026-06-15T22:00:00.000Z");
     const eventsRepository = {
-      findById: jest.fn().mockResolvedValue({
+      findBySlug: jest.fn().mockResolvedValue({
         id: "evt-4",
         name: "Design Systems",
         slug: "design-systems",
@@ -30,9 +30,9 @@ describe("GetEventQueryHandler", () => {
     const handler = new GetEventQueryHandler(
       eventsRepository as unknown as EventsRepository,
     );
-    const result = await handler.execute(new GetEventQuery("evt-4"));
+    const result = await handler.execute(new GetEventQuery("design-systems"));
 
-    expect(eventsRepository.findById).toHaveBeenCalledWith("evt-4");
+    expect(eventsRepository.findBySlug).toHaveBeenCalledWith("design-systems");
     expect(result).toEqual({
       id: "evt-4",
       name: "Design Systems",
@@ -51,7 +51,7 @@ describe("GetEventQueryHandler", () => {
 
   it("throws NotFoundException when the event does not exist", async () => {
     const eventsRepository = {
-      findById: jest.fn().mockResolvedValue(null),
+      findBySlug: jest.fn().mockResolvedValue(null),
     };
 
     const handler = new GetEventQueryHandler(

@@ -11,13 +11,13 @@ export class UpdateEventStatusCommandHandler implements ICommandHandler<UpdateEv
   constructor(private readonly eventsRepository: EventsRepository) {}
 
   async execute(command: UpdateEventStatusCommand): Promise<EventWithDetail> {
-    const { id, status } = command;
+    const { slug, status } = command;
 
-    const existingEvent = await this.eventsRepository.exists(id);
+    const existingEvent = await this.eventsRepository.existsBySlug(slug);
     if (!existingEvent) {
       throw new NotFoundException("Event not found");
     }
 
-    return this.eventsRepository.update(id, { status }, {});
+    return this.eventsRepository.updateBySlug(slug, { status }, {});
   }
 }

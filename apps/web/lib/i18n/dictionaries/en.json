@@ -27,12 +27,21 @@
   },
   "addEvent": {
     "pageTitle": "Add New Event",
-    "sectionTitle": "Submit Your Event",
+    "sectionTitle": "Submit Upcoming Event",
     "eventNameLabel": "Event Name",
     "eventNamePlaceholder": "Enter event name",
-    "locationLabel": "Location",
-    "locationPlaceholder": "Enter event location",
-    "submit": "Submit Event"
+    "descriptionLabel": "Description",
+    "descriptionPlaceholder": "Write a short event description",
+    "emailLabel": "Your email",
+    "emailPlaceholder": "organizer@example.com",
+    "submit": "Create Event",
+    "submitting": "Creating...",
+    "success": "Event created. Redirecting to details...",
+    "error": "Could not create event. Please try again.",
+    "errors": {
+      "nameRequired": "Event name is required.",
+      "emailInvalid": "Enter a valid email address."
+    }
   },
   "search": {
     "pageTitle": "Search Results",
@@ -52,5 +61,46 @@
     "categoryArt": "Art",
     "categoryTech": "Technology",
     "submit": "Subscribe to Notifications"
+  },
+  "event": {
+    "pageTitle": "Event details",
+    "sectionTitle": "Event details",
+    "notProvided": "Not provided",
+    "updateSuccess": "Event has been updated successfully.",
+    "requestEditTitle": "Request edit token",
+    "requestEditDescription": "Enter your email address to receive one-time edit link.",
+    "requestEditEmailLabel": "Email",
+    "requestEditEmailPlaceholder": "name@example.com",
+    "editButton": "Edit Event",
+    "backToSearchResults": "← Back to search results",
+    "requestEditSubmit": "Request token",
+    "requestEditSuccess": {
+      "pageTitle": "Token request sent",
+      "description": "If your address can edit this event, you will receive a one-time edit link by email.",
+      "backToEvent": "Back to event"
+    },
+    "requestEditError": {
+      "pageTitle": "Token request failed",
+      "description": "We could not process your token request. Please try again from the event page.",
+      "backToEvent": "Try again"
+    },
+    "fields": {
+      "description": "Description",
+      "country": "Country",
+      "city": "City",
+      "region": "Region",
+      "postalCode": "Postal code",
+      "address": "Address",
+      "venue": "Venue",
+      "startAt": "Start",
+      "endAt": "End"
+    }
+  },
+  "eventEdit": {
+    "pageTitle": "Edit event",
+    "sectionTitle": "Edit event details",
+    "description": "Update the fields below and save your changes.",
+    "submit": "Save changes",
+    "backToEvent": "← Back to event"
   }
 }

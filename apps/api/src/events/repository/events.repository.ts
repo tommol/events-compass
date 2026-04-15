@@ -55,13 +55,13 @@ export class EventsRepository {
     });
   }
 
-  public async findById(
-    id: string,
+  public async findBySlug(
+    slug: string,
     onlyActive: boolean = true,
   ): Promise<EventWithDetail | null> {
     return this.prisma.event.findUnique({
       where: {
-        id,
+        slug,
         status: onlyActive ? "active" : undefined,
       },
       include: {
@@ -70,10 +70,10 @@ export class EventsRepository {
     });
   }
 
-  public async exists(id: string): Promise<boolean> {
+  public async existsBySlug(slug: string): Promise<boolean> {
     const event = await this.prisma.event.findUnique({
       where: {
-        id,
+        slug,
       },
       include: {
         detail: true,
@@ -96,8 +96,72 @@ export class EventsRepository {
     });
   }
 
-  public async update(
-    id: string,
+  public async search(
+    term: string,
+    page: number,
+    limit: number,
+    onlyActive: boolean = true,
+  ): Promise<EventWithDetail[]> {
+    const skip = (page - 1) * limit;
+
+    return this.prisma.event.findMany({
+      skip,
+      take: limit,
+      where: {
+        status: onlyActive ? "active" : undefined,
+        OR: [
+          {
+            name: {
+              contains: term,
+              mode: "insensitive",
+            },
+          },
+          {
+            description: {
+              contains: term,
+              mode: "insensitive",
+            },
+          },
+          {
+            detail: {
+              is: {
+                city: {
+                  contains: term,
+                  mode: "insensitive",
+                },
+              },
+            },
+          },
+          {
+            detail: {
+              is: {
+                venue: {
+                  contains: term,
+                  mode: "insensitive",
+                },
+              },
+            },
+          },
+          {
+            detail: {
+              is: {
+                country: {
+                  contains: term,
+                  mode: "insensitive",
+                },
+              },
+            },
+          },
+        ],
+      },
+      include: {
+        detail: true,
+      },
+    });
+  }
+
+  public async updateBySlug(
+    slug: string,
     eventData: UpdateEventData,
     detailData: UpdateEventDetailsData,
   ): Promise<EventWithDetail> {
@@ -107,16 +171,25 @@ export class EventsRepository {
 
     return this.prisma.$transaction(async (tx) => {
       await tx.event.update({
-        where: { id },
+        where: { slug },
         data: {
           description: eventData.description,
           status: eventData.status,
         },
       });
 
+      const existing = await tx.event.findUnique({
+        where: { slug },
+        select: { id: true },
+      });
+
+      if (!existing) {
+        throw new Error("Event not found after update");
+      }
+
       if (hasDetailData) {
         await tx.eventDetail.upsert({
-          where: { id },
+          where: { id: existing.id },
           update: {
             startAt: detailData.startAt,
             endsAt: detailData.endsAt,
@@ -128,7 +201,7 @@ export class EventsRepository {
             venue: detailData.venue,
           },
           create: {
-            id,
+            id: existing.id,
             startAt: detailData.startAt,
             endsAt: detailData.endsAt,
             country: detailData.country,
@@ -142,7 +215,7 @@ export class EventsRepository {
       }
 
       const updated = await tx.event.findUnique({
-        where: { id },
+        where: { slug },
         include: { detail: true },
       });
 
@@ -154,10 +227,10 @@ export class EventsRepository {
     });
   }
 
-  public async searchOwnedEvent(email: string, eventId: string): Promise<EventEntity | null> {
+  public async searchOwnedEventBySlug(email: string, eventSlug: string): Promise<EventEntity | null> {
     return this.prisma.event.findFirst({
       where: {
-        id: eventId,
+        slug: eventSlug,
         author: {
           email,
         },

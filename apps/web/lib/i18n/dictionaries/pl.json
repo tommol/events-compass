@@ -27,12 +27,21 @@
   },
   "addEvent": {
     "pageTitle": "Dodaj nowe wydarzenie",
-    "sectionTitle": "Zglos swoje wydarzenie",
+    "sectionTitle": "Zgłoś nadchodzące wydarzenie",
     "eventNameLabel": "Nazwa wydarzenia",
     "eventNamePlaceholder": "Wpisz nazwe wydarzenia",
-    "locationLabel": "Lokalizacja",
-    "locationPlaceholder": "Wpisz lokalizacje wydarzenia",
-    "submit": "Zglos wydarzenie"
+    "descriptionLabel": "Opis",
+    "descriptionPlaceholder": "Wpisz krotki opis wydarzenia",
+    "emailLabel": "Twój email",
+    "emailPlaceholder": "organizator@przyklad.pl",
+    "submit": "Utworz wydarzenie",
+    "submitting": "Tworzenie...",
+    "success": "Wydarzenie utworzone. Trwa przekierowanie do szczegolow...",
+    "error": "Nie udalo sie utworzyc wydarzenia. Sprobuj ponownie.",
+    "errors": {
+      "nameRequired": "Nazwa wydarzenia jest wymagana.",
+      "emailInvalid": "Podaj poprawny adres email."
+    }
   },
   "search": {
     "pageTitle": "Wyniki wyszukiwania",
@@ -52,5 +61,46 @@
     "categoryArt": "Sztuka",
     "categoryTech": "Technologia",
     "submit": "Subskrybuj powiadomienia"
+  },
+  "event": {
+    "pageTitle": "Szczegoly wydarzenia",
+    "sectionTitle": "Szczegoly wydarzenia",
+    "notProvided": "Brak danych",
+    "updateSuccess": "Wydarzenie zostalo zaktualizowane.",
+    "requestEditTitle": "Uzyskaj token edycji",
+    "requestEditDescription": "Podaj email, aby otrzymac jednorazowy link do edycji.",
+    "requestEditEmailLabel": "Email",
+    "requestEditEmailPlaceholder": "nazwa@przyklad.pl",
+    "editButton": "Edytuj wydarzenie",
+    "backToSearchResults": "← Wroc do wynikow wyszukiwania",
+    "requestEditSubmit": "Popros o token",
+    "requestEditSuccess": {
+      "pageTitle": "Prosba o token wyslana",
+      "description": "Jesli ten adres ma uprawnienia do edycji wydarzenia, otrzymasz jednorazowy link emailem.",
+      "backToEvent": "Wroc do wydarzenia"
+    },
+    "requestEditError": {
+      "pageTitle": "Nie udalo sie uzyskac tokena",
+      "description": "Nie udalo sie przetworzyc prosby o token. Sprobuj ponownie ze strony wydarzenia.",
+      "backToEvent": "Sprobuj ponownie"
+    },
+    "fields": {
+      "description": "Opis",
+      "country": "Kraj",
+      "city": "Miasto",
+      "region": "Region",
+      "postalCode": "Kod pocztowy",
+      "address": "Adres",
+      "venue": "Miejsce",
+      "startAt": "Start",
+      "endAt": "Koniec"
+    }
+  },
+  "eventEdit": {
+    "pageTitle": "Edytuj wydarzenie",
+    "sectionTitle": "Edytuj szczegoly wydarzenia",
+    "description": "Zmien pola ponizej i zapisz aktualizacje.",
+    "submit": "Zapisz zmiany",
+    "backToEvent": "← Wroc do wydarzenia"
   }
 }

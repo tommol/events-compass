@@ -1,20 +1,23 @@
 import { IQueryHandler, QueryHandler } from "@nestjs/cqrs";
-import { GetEventQuery } from "../get-event.query";
-import { EventsRepository } from "../../repository/events.repository";
-import { EventDto } from "../../dtos/event.dto";
-import { NotFoundException } from "@nestjs/common";
 
-@QueryHandler(GetEventQuery)
-export class GetEventQueryHandler implements IQueryHandler<GetEventQuery> {
+import { EventDto } from "../../dtos/event.dto";
+import { EventsRepository } from "../../repository/events.repository";
+import { SearchEventsQuery } from "../search-events.query";
+
+@QueryHandler(SearchEventsQuery)
+export class SearchEventsQueryHandler
+  implements IQueryHandler<SearchEventsQuery>
+{
   constructor(private readonly eventsRepository: EventsRepository) {}
 
-  async execute(query: GetEventQuery): Promise<EventDto> {
-    const entity = await this.eventsRepository.findBySlug(query.slug);
-    if (!entity) {
-      throw new NotFoundException("Event not found");
-    }
+  async execute(query: SearchEventsQuery): Promise<EventDto[]> {
+    const entities = await this.eventsRepository.search(
+      query.term,
+      query.page,
+      query.limit,
+    );
 
-    return {
+    return entities.map((entity) => ({
       id: entity.id,
       name: entity.name,
       slug: entity.slug,
@@ -27,6 +30,6 @@ export class GetEventQueryHandler implements IQueryHandler<GetEventQuery> {
       venue: entity.detail?.venue ?? undefined,
       startAt: entity.detail?.startAt ?? undefined,
       endAt: entity.detail?.endsAt ?? undefined,
-    };
+    }));
   }
 }

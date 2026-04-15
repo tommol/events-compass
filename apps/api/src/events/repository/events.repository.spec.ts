@@ -46,13 +46,13 @@ describe("EventsRepository", () => {
   });
 
   it("finds an active event by default", async () => {
-    prisma.event.findUnique.mockResolvedValue({ id: "evt-2" });
+    prisma.event.findUnique.mockResolvedValue({ slug: "frontend-meetup" });
 
-    await repository.findById("evt-2");
+    await repository.findBySlug("frontend-meetup");
 
     expect(prisma.event.findUnique).toHaveBeenCalledWith({
       where: {
-        id: "evt-2",
+        slug: "frontend-meetup",
         status: "active",
       },
       include: {
@@ -62,13 +62,13 @@ describe("EventsRepository", () => {
   });
 
   it("can find an event regardless of status when requested", async () => {
-    prisma.event.findUnique.mockResolvedValue({ id: "evt-3" });
+    prisma.event.findUnique.mockResolvedValue({ slug: "backend-meetup" });
 
-    await repository.findById("evt-3", false);
+    await repository.findBySlug("backend-meetup", false);
 
     expect(prisma.event.findUnique).toHaveBeenCalledWith({
       where: {
-        id: "evt-3",
+        slug: "backend-meetup",
         status: undefined,
       },
       include: {
@@ -78,11 +78,11 @@ describe("EventsRepository", () => {
   });
 
   it("returns true when an event exists", async () => {
-    prisma.event.findUnique.mockResolvedValue({ id: "evt-4" });
+    prisma.event.findUnique.mockResolvedValue({ slug: "design-systems" });
 
-    await expect(repository.exists("evt-4")).resolves.toBe(true);
+    await expect(repository.existsBySlug("design-systems")).resolves.toBe(true);
     expect(prisma.event.findUnique).toHaveBeenCalledWith({
-      where: { id: "evt-4" },
+      where: { slug: "design-systems" },
       include: { detail: true },
     });
   });
@@ -90,7 +90,7 @@ describe("EventsRepository", () => {
   it("returns false when an event does not exist", async () => {
     prisma.event.findUnique.mockResolvedValue(null);
 
-    await expect(repository.exists("missing")).resolves.toBe(false);
+    await expect(repository.existsBySlug("missing")).resolves.toBe(false);
   });
 
   it("paginates events with calculated skip and take", async () => {
@@ -112,7 +112,10 @@ describe("EventsRepository", () => {
     const tx = {
       event: {
         update: jest.fn().mockResolvedValue(undefined),
-        findUnique: jest.fn().mockResolvedValue(updatedEvent),
+        findUnique: jest
+          .fn()
+          .mockResolvedValueOnce({ id: "evt-6" })
+          .mockResolvedValueOnce(updatedEvent),
       },
       eventDetail: {
         upsert: jest.fn().mockResolvedValue(undefined),
@@ -126,14 +129,14 @@ describe("EventsRepository", () => {
     };
 
     await expect(
-      repository.update(
-        "evt-6",
+      repository.updateBySlug(
+        "design-systems",
         { description: "Updated description" },
         details,
       ),
     ).resolves.toBe(updatedEvent as never);
     expect(tx.event.update).toHaveBeenCalledWith({
-      where: { id: "evt-6" },
+      where: { slug: "design-systems" },
       data: {
         description: "Updated description",
         status: undefined,
@@ -163,8 +166,8 @@ describe("EventsRepository", () => {
         venue: "PGE Narodowy",
       },
     });
-    expect(tx.event.findUnique).toHaveBeenCalledWith({
-      where: { id: "evt-6" },
+    expect(tx.event.findUnique).toHaveBeenNthCalledWith(2, {
+      where: { slug: "design-systems" },
       include: { detail: true },
     });
   });
@@ -174,7 +177,10 @@ describe("EventsRepository", () => {
     const tx = {
       event: {
         update: jest.fn().mockResolvedValue(undefined),
-        findUnique: jest.fn().mockResolvedValue(updatedEvent),
+        findUnique: jest
+          .fn()
+          .mockResolvedValueOnce({ id: "evt-7" })
+          .mockResolvedValueOnce(updatedEvent),
       },
       eventDetail: {
         upsert: jest.fn(),
@@ -183,10 +189,10 @@ describe("EventsRepository", () => {
     prisma.$transaction.mockImplementation(async (callback) => callback(tx));
 
     await expect(
-      repository.update("evt-7", { status: "archived" }, {}),
+      repository.updateBySlug("api-summit", { status: "archived" }, {}),
     ).resolves.toBe(updatedEvent as never);
     expect(tx.event.update).toHaveBeenCalledWith({
-      where: { id: "evt-7" },
+      where: { slug: "api-summit" },
       data: {
         description: undefined,
         status: "archived",
@@ -199,7 +205,10 @@ describe("EventsRepository", () => {
     const tx = {
       event: {
         update: jest.fn().mockResolvedValue(undefined),
-        findUnique: jest.fn().mockResolvedValue(null),
+        findUnique: jest
+          .fn()
+          .mockResolvedValueOnce({ id: "evt-8" })
+          .mockResolvedValueOnce(null),
       },
       eventDetail: {
         upsert: jest.fn().mockResolvedValue(undefined),
@@ -208,7 +217,7 @@ describe("EventsRepository", () => {
     prisma.$transaction.mockImplementation(async (callback) => callback(tx));
 
     await expect(
-      repository.update("evt-8", {}, { city: "Warsaw" }),
+      repository.updateBySlug("missing-slug", {}, { city: "Warsaw" }),
     ).rejects.toThrow("Event not found after update");
   });
 });

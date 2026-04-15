@@ -24,6 +24,16 @@ export const createEventsPrismaMock = () => {
   const events = new Map<string, StoredEvent>();
   const details = new Map<string, StoredEventDetail>();
   let counter = 0;
+  const findEventBySlug = (slug: string): StoredEvent | undefined =>
+    [...events.values()].find((event) => event.slug === slug);
+
+  const containsIgnoreCase = (value: string | undefined, expected: string): boolean => {
+    if (!value) {
+      return false;
+    }
+
+    return value.toLowerCase().includes(expected.toLowerCase());
+  };
 
   const mapEventWithDetail = (event: StoredEvent) => ({
     ...event,
@@ -45,22 +55,71 @@ export const createEventsPrismaMock = () => {
         events.set(event.id, event);
         return event;
       }),
-      findUnique: jest.fn(async ({ where }: any) => {
-        const event = events.get(where.id);
+      findUnique: jest.fn(async ({ where, select }: any) => {
+        const event = where.id ? events.get(where.id) : findEventBySlug(where.slug);
         if (!event) {
           return null;
         }
         if (where.status && event.status !== where.status) {
           return null;
         }
+
+        if (select) {
+          const selected: Record<string, unknown> = {};
+          Object.entries(select).forEach(([key, value]) => {
+            if (value) {
+              selected[key] = (event as unknown as Record<string, unknown>)[key];
+            }
+          });
+          return selected;
+        }
+
         return mapEventWithDetail(event);
       }),
-      findMany: jest.fn(async ({ skip = 0, take = 10 }: any) => {
+      findMany: jest.fn(async ({ skip = 0, take = 10, where }: any) => {
         const all = [...events.values()].map(mapEventWithDetail);
-        return all.slice(skip, skip + take);
+
+        const filtered = all.filter((event) => {
+          if (where?.status && event.status !== where.status) {
+            return false;
+          }
+
+          if (!where?.OR || !Array.isArray(where.OR) || where.OR.length === 0) {
+            return true;
+          }
+
+          return where.OR.some((condition: any) => {
+            if (condition.name?.contains) {
+              return containsIgnoreCase(event.name, condition.name.contains);
+            }
+
+            if (condition.description?.contains) {
+              return containsIgnoreCase(event.description, condition.description.contains);
+            }
+
+            const detail = event.detail;
+            const detailIs = condition.detail?.is;
+
+            if (detailIs?.city?.contains) {
+              return containsIgnoreCase(detail?.city, detailIs.city.contains);
+            }
+
+            if (detailIs?.venue?.contains) {
+              return containsIgnoreCase(detail?.venue, detailIs.venue.contains);
+            }
+
+            if (detailIs?.country?.contains) {
+              return containsIgnoreCase(detail?.country, detailIs.country.contains);
+            }
+
+            return false;
+          });
+        });
+
+        return filtered.slice(skip, skip + take);
       }),
       update: jest.fn(async ({ where, data }: any) => {
-        const existing = events.get(where.id);
+        const existing = where.id ? events.get(where.id) : findEventBySlug(where.slug);
         if (!existing) {
           throw new Error('Event not found');
         }
@@ -72,7 +131,7 @@ export const createEventsPrismaMock = () => {
               : data.description,
           status: data.status === undefined ? existing.status : data.status,
         };
-        events.set(where.id, next);
+        events.set(existing.id, next);
         return next;
       }),
     },

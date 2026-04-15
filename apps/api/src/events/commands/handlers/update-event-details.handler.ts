@@ -14,7 +14,7 @@ export class UpdateEventDetailsCommandHandler implements ICommandHandler<UpdateE
 
   async execute(command: UpdateEventDetailsCommand): Promise<EventWithDetail> {
     const {
-      id,
+      slug,
       token,
       description,
       startAt,
@@ -32,12 +32,13 @@ export class UpdateEventDetailsCommandHandler implements ICommandHandler<UpdateE
       throw new ForbiddenException("Invalid or expired edit token");
     }
 
-    if (editToken.eventId !== id) {
-      throw new ForbiddenException("Edit token does not match event");
-    }
-
     if (editToken.userId !== editToken.event.authorId) {
       throw new ForbiddenException("Edit token is not valid for event owner");
+    }
+
+    const ownedEvent = await this.eventsRepository.findBySlug(slug, false);
+    if (!ownedEvent || ownedEvent.id !== editToken.eventId) {
+      throw new ForbiddenException("Edit token does not match event");
     }
 
     const entity: UpdateEventData = {
@@ -55,7 +56,7 @@ export class UpdateEventDetailsCommandHandler implements ICommandHandler<UpdateE
       venue: venue,
     };
 
-    const event = await this.eventsRepository.update(id, entity, details);
+    const event = await this.eventsRepository.updateBySlug(slug, entity, details);
     await this.eventsRepository.invalidateEditToken(token);
     return event;
   }

@@ -15,7 +15,8 @@ describe("UpdateEventDetailsCommandHandler", () => {
         userId: "usr-1",
         event: { id: "evt-2", authorId: "usr-1" },
       }),
-      update: jest.fn().mockResolvedValue(updatedEvent),
+      findBySlug: jest.fn().mockResolvedValue({ id: "evt-2", slug: "frontend-meetup" }),
+      updateBySlug: jest.fn().mockResolvedValue(updatedEvent),
       invalidateEditToken: jest.fn().mockResolvedValue(undefined),
     };
 
@@ -24,7 +25,7 @@ describe("UpdateEventDetailsCommandHandler", () => {
     );
     const result = await handler.execute(
       new UpdateEventDetailsCommand(
-        "evt-2",
+        "frontend-meetup",
         "tok-123",
         "Updated description",
         startAt,
@@ -39,8 +40,9 @@ describe("UpdateEventDetailsCommandHandler", () => {
     );
 
     expect(eventsRepository.findValidEditToken).toHaveBeenCalledWith("tok-123");
-    expect(eventsRepository.update).toHaveBeenCalledWith(
-      "evt-2",
+    expect(eventsRepository.findBySlug).toHaveBeenCalledWith("frontend-meetup", false);
+    expect(eventsRepository.updateBySlug).toHaveBeenCalledWith(
+      "frontend-meetup",
       { description: "Updated description" },
       {
         startAt,
@@ -60,7 +62,8 @@ describe("UpdateEventDetailsCommandHandler", () => {
   it("throws ForbiddenException when token is invalid", async () => {
     const eventsRepository = {
       findValidEditToken: jest.fn().mockResolvedValue(null),
-      update: jest.fn(),
+      findBySlug: jest.fn(),
+      updateBySlug: jest.fn(),
       invalidateEditToken: jest.fn(),
     };
 
@@ -69,8 +72,8 @@ describe("UpdateEventDetailsCommandHandler", () => {
     );
 
     await expect(
-      handler.execute(new UpdateEventDetailsCommand("missing", "bad-token")),
+      handler.execute(new UpdateEventDetailsCommand("missing-slug", "bad-token")),
     ).rejects.toBeInstanceOf(ForbiddenException);
-    expect(eventsRepository.update).not.toHaveBeenCalled();
+    expect(eventsRepository.updateBySlug).not.toHaveBeenCalled();
   });
 });

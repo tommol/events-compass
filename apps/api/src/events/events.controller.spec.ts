@@ -6,6 +6,7 @@ import { UpdateEventStatusCommand } from "./commands/update-event-status.command
 import { EventsController } from "./events.controller";
 import { GetEventQuery } from "./queries/get-event.query";
 import { GetEventsQuery } from "./queries/get-events.query";
+import { SearchEventsQuery } from "./queries/search-events.query";
 
 describe("EventsController", () => {
   let controller: EventsController;
@@ -54,11 +55,11 @@ describe("EventsController", () => {
     const event = { id: "evt-2", name: "JS Conf", slug: "js-conf" };
     queryBus.execute.mockResolvedValue(event);
 
-    const result = await controller.getEvent("evt-2");
+    const result = await controller.getEvent("js-conf");
 
     expect(queryBus.execute).toHaveBeenCalledWith(expect.any(GetEventQuery));
     const query = queryBus.execute.mock.calls[0][0] as GetEventQuery;
-    expect(query.id).toBe("evt-2");
+    expect(query.slug).toBe("js-conf");
     expect(result).toBe(event);
   });
 
@@ -70,6 +71,20 @@ describe("EventsController", () => {
 
     expect(queryBus.execute).toHaveBeenCalledWith(expect.any(GetEventsQuery));
     const query = queryBus.execute.mock.calls[0][0] as GetEventsQuery;
+    expect(query.page).toBe(2);
+    expect(query.limit).toBe(5);
+    expect(result).toBe(events);
+  });
+
+  it("searches events through the query bus", async () => {
+    const events = [{ id: "evt-6", name: "Frontend Warsaw", slug: "frontend-warsaw" }];
+    queryBus.execute.mockResolvedValue(events);
+
+    const result = await controller.searchEvents({ q: "warsaw", page: 2, limit: 5 });
+
+    expect(queryBus.execute).toHaveBeenCalledWith(expect.any(SearchEventsQuery));
+    const query = queryBus.execute.mock.calls[0][0] as SearchEventsQuery;
+    expect(query.term).toBe("warsaw");
     expect(query.page).toBe(2);
     expect(query.limit).toBe(5);
     expect(result).toBe(events);
@@ -96,7 +111,7 @@ describe("EventsController", () => {
       },
     });
 
-    const result = await controller.updateEventDetails("evt-4", {
+    const result = await controller.updateEventDetails("design-systems", {
       token: "tok-123",
       description: "Updated description",
       startAt,
@@ -114,7 +129,7 @@ describe("EventsController", () => {
     );
     const command = commandBus.execute.mock
       .calls[0][0] as UpdateEventDetailsCommand;
-    expect(command.id).toBe("evt-4");
+    expect(command.slug).toBe("design-systems");
     expect(command.token).toBe("tok-123");
     expect(command.endAt).toBe(endAt);
     expect(result).toEqual({
@@ -141,7 +156,7 @@ describe("EventsController", () => {
       description: "Archived event",
     });
 
-    const result = await controller.updateEventStatus("evt-5", {
+    const result = await controller.updateEventStatus("api-summit", {
       status: "archived",
     });
 
@@ -150,7 +165,7 @@ describe("EventsController", () => {
     );
     const command = commandBus.execute.mock
       .calls[0][0] as UpdateEventStatusCommand;
-    expect(command.id).toBe("evt-5");
+    expect(command.slug).toBe("api-summit");
     expect(command.status).toBe("archived");
     expect(result).toEqual({
       id: "evt-5",

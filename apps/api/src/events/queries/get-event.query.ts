@@ -1,3 +1,3 @@
 export class GetEventQuery {
-  constructor(public readonly id: string) {}
+  constructor(public readonly slug: string) {}
 }

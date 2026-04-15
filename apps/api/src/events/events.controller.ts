@@ -24,6 +24,8 @@ import { UpdateEventStatusCommand } from "./commands/update-event-status.command
 import { UpdateEventStatusDto } from "./dtos/update-event-status.dto";
 import { UpdateEventRequestCommand } from "./commands/update-event-request.command";
 import { EditEventRequestDto } from "./dtos/edit-event-request.dto";
+import { SearchEventsQueryDto } from "./dtos/search-events-query.dto";
+import { SearchEventsQuery } from "./queries/search-events.query";
 
 @ApiTags("events")
 @Controller({ path: "events", version: "1" })
@@ -67,8 +69,27 @@ export class EventsController {
     } as EventCreatedDto;
   }
 
-  @Get(":id")
-  @ApiOperation({ summary: "Get event by id" })
+  @Get("search")
+  @ApiOperation({ summary: "Search events" })
+  @ApiOkResponse({
+    description: "Matching events have been successfully retrieved.",
+    type: [EventDto],
+  })
+  @ApiBadRequestResponse({
+    description: "The request query parameters are invalid.",
+  })
+  public async searchEvents(@Query() queryParams: SearchEventsQueryDto): Promise<EventDto[]> {
+    const query = new SearchEventsQuery(
+      queryParams.q,
+      queryParams.page,
+      queryParams.limit,
+    );
+
+    return this.queryBus.execute(query);
+  }
+
+  @Get(":slug")
+  @ApiOperation({ summary: "Get event by slug" })
   @ApiOkResponse({
     description: "The event has been successfully retrieved.",
     type: EventDto,
@@ -76,12 +97,12 @@ export class EventsController {
   @ApiNotFoundResponse({
     description: "Event not found.",
   })
-  public async getEvent(@Param("id") id: string): Promise<EventDto> {
-    const query = new GetEventQuery(id);
+  public async getEvent(@Param("slug") slug: string): Promise<EventDto> {
+    const query = new GetEventQuery(slug);
     return this.queryBus.execute(query);
   }
 
-  @Get("token/:id")
+  @Get("token/:token")
   @ApiOperation({ summary: "Get event by edit token" })
   @ApiOkResponse({
     description: "The event has been successfully retrieved by token.",
@@ -90,8 +111,8 @@ export class EventsController {
   @ApiNotFoundResponse({
     description: "Event not found or token expired.",
   })
-  public async getEventByToken(@Param("id") id: string): Promise<EventDto> {
-    const query = new GetEventByTokenQuery(id);
+  public async getEventByToken(@Param("token") token: string): Promise<EventDto> {
+    const query = new GetEventByTokenQuery(token);
     return this.queryBus.execute(query);
   }
 
@@ -109,7 +130,7 @@ export class EventsController {
     return this.queryBus.execute(query);
   }
 
-  @Put(":id")
+  @Put(":slug")
   @ApiOperation({ summary: "Update event details" })
   @ApiOkResponse({
     description: "The event details have been successfully updated.",
@@ -122,11 +143,11 @@ export class EventsController {
     description: "Event not found.",
   })
   public async updateEventDetails(
-    @Param("id") id: string,
+    @Param("slug") slug: string,
     @Body() request: UpdateEventDto,
   ): Promise<EventDto> {
     const command = new UpdateEventDetailsCommand(
-      id,
+      slug,
       request.token,
       request.description,
       request.startAt,
@@ -156,7 +177,7 @@ export class EventsController {
     } as EventDto;
   }
 
-  @Put(":id/status")
+  @Put(":slug/status")
   @ApiOperation({ summary: "Update event status" })
   @ApiOkResponse({
     description: "The event status has been successfully updated.",
@@ -169,10 +190,10 @@ export class EventsController {
     description: "Event not found.",
   })
   public async updateEventStatus(
-    @Param("id") id: string,
+    @Param("slug") slug: string,
     @Body() request: UpdateEventStatusDto,
   ): Promise<EventCreatedDto> {
-    const command = new UpdateEventStatusCommand(id, request.status);
+    const command = new UpdateEventStatusCommand(slug, request.status);
     const result = await this.commandBus.execute(command);
     return {
       id: result.id,
@@ -182,7 +203,7 @@ export class EventsController {
     } as EventCreatedDto;
   }
 
-  @Post(":id/request-edit")
+  @Post(":slug/request-edit")
   @HttpCode(204)
   @ApiOperation({
     summary: "Request edit token for an event",
@@ -201,8 +222,8 @@ export class EventsController {
   @ApiForbiddenResponse({
     description: "User is not authorized to edit this event.",
   })
-  public async requestEditEvent(@Param("id") id: string, @Body() request: EditEventRequestDto): Promise<void> {
-    const command = new UpdateEventRequestCommand(request.email, id);
+  public async requestEditEvent(@Param("slug") slug: string, @Body() request: EditEventRequestDto): Promise<void> {
+    const command = new UpdateEventRequestCommand(request.email, slug);
     await this.commandBus.execute(command);
   }
 }

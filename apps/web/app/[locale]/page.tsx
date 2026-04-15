@@ -36,13 +36,19 @@ export default async function HomePage({ params }: HomePageProps) {
         </div>
       </div>
       <div className="landing-top-line" aria-hidden="true" />
-      <form className="event-search" role="search" aria-label={dictionary.landing.searchAriaLabel}>
+      <form
+        className="event-search"
+        role="search"
+        aria-label={dictionary.landing.searchAriaLabel}
+        action={withLocalePath(locale, '/search')}
+        method="get"
+      >
         <label htmlFor="event-search-input" className="sr-only">
           {dictionary.landing.searchLabel}
         </label>
         <input
           id="event-search-input"
-          name="query"
+          name="q"
           type="search"
           placeholder={dictionary.landing.searchPlaceholder}
           className="event-search-input"
@@ -56,7 +62,7 @@ export default async function HomePage({ params }: HomePageProps) {
         <article className="landing-card">
           <h2>{dictionary.landing.addEventTitle}</h2>
           <p>{dictionary.landing.addEventDescription}</p>
-          <Link href={withLocalePath(locale, '/add-event')} className="landing-card-link">
+          <Link href={withLocalePath(locale, '/event/add')} className="landing-card-link">
             {dictionary.landing.addEventCta}
           </Link>
         </article>

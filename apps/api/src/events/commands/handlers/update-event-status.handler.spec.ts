@@ -8,20 +8,20 @@ describe("UpdateEventStatusCommandHandler", () => {
   it("updates the status when the event exists", async () => {
     const updatedEvent = { id: "evt-3", status: "archived" };
     const eventsRepository = {
-      exists: jest.fn().mockResolvedValue(true),
-      update: jest.fn().mockResolvedValue(updatedEvent),
+      existsBySlug: jest.fn().mockResolvedValue(true),
+      updateBySlug: jest.fn().mockResolvedValue(updatedEvent),
     };
 
     const handler = new UpdateEventStatusCommandHandler(
       eventsRepository as unknown as EventsRepository,
     );
     const result = await handler.execute(
-      new UpdateEventStatusCommand("evt-3", "archived"),
+      new UpdateEventStatusCommand("api-summit", "archived"),
     );
 
-    expect(eventsRepository.exists).toHaveBeenCalledWith("evt-3");
-    expect(eventsRepository.update).toHaveBeenCalledWith(
-      "evt-3",
+    expect(eventsRepository.existsBySlug).toHaveBeenCalledWith("api-summit");
+    expect(eventsRepository.updateBySlug).toHaveBeenCalledWith(
+      "api-summit",
       { status: "archived" },
       {},
     );
@@ -30,8 +30,8 @@ describe("UpdateEventStatusCommandHandler", () => {
 
   it("throws NotFoundException when the event does not exist", async () => {
     const eventsRepository = {
-      exists: jest.fn().mockResolvedValue(false),
-      update: jest.fn(),
+      existsBySlug: jest.fn().mockResolvedValue(false),
+      updateBySlug: jest.fn(),
     };
 
     const handler = new UpdateEventStatusCommandHandler(
@@ -41,6 +41,6 @@ describe("UpdateEventStatusCommandHandler", () => {
     await expect(
       handler.execute(new UpdateEventStatusCommand("missing", "deleted")),
     ).rejects.toBeInstanceOf(NotFoundException);
-    expect(eventsRepository.update).not.toHaveBeenCalled();
+    expect(eventsRepository.updateBySlug).not.toHaveBeenCalled();
   });
 });
