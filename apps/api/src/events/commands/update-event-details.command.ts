@@ -1,6 +1,7 @@
 export class UpdateEventDetailsCommand {
   constructor(
     public readonly id: string,
+    public readonly token: string,
     public readonly description?: string,
     public readonly startAt?: Date,
     public readonly endAt?: Date,

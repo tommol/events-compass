@@ -14,6 +14,7 @@ model User {
   createdAt      DateTime @default(now())
   updatedAt      DateTime @updatedAt
   authoredEvents Event[]
+  eventTokens    EventToken[]
 }
 
 model Event {
@@ -29,6 +30,7 @@ model Event {
   authorId String
   author   User         @relation(fields: [authorId], references: [id])
   detail   EventDetail?
+  tokens   EventToken[]
 }
 
 enum EventStatus {
@@ -56,4 +58,19 @@ model EventDetail {
   ticketsUrl   String?
 
   event Event @relation(fields: [id], references: [id], onDelete: Cascade)
+}
+
+model EventToken {
+  id        String   @id @default(cuid())
+  tokenHash String   @unique
+  expiresAt DateTime
+
+  userId String
+  user   User     @relation(fields: [userId], references: [id])
+
+  eventId String
+  event   Event    @relation(fields: [eventId], references: [id])
+
+  @@index([userId])
+  @@index([eventId])
 }

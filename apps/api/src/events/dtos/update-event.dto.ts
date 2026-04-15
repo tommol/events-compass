@@ -1,5 +1,5 @@
 import { Type } from "class-transformer";
-import { ApiPropertyOptional, ApiSchema } from "@nestjs/swagger";
+import { ApiProperty, ApiPropertyOptional, ApiSchema } from "@nestjs/swagger";
 import { IsDate, IsOptional, IsString } from "class-validator";
 
 @ApiSchema({
@@ -7,6 +7,13 @@ import { IsDate, IsOptional, IsString } from "class-validator";
   description: "Request body for updating event details.",
 })
 export class UpdateEventDto {
+  @ApiProperty({
+    description: "One-time edit token sent by email.",
+    example: "8f3c9d2f7b1a...",
+  })
+  @IsString()
+  token!: string;
+
   @ApiPropertyOptional({
     description: "Optional short summary shown in listings and previews.",
     example: "An evening meetup about modern frontend architecture.",

@@ -97,6 +97,7 @@ describe("EventsController", () => {
     });
 
     const result = await controller.updateEventDetails("evt-4", {
+      token: "tok-123",
       description: "Updated description",
       startAt,
       endAt,
@@ -114,6 +115,7 @@ describe("EventsController", () => {
     const command = commandBus.execute.mock
       .calls[0][0] as UpdateEventDetailsCommand;
     expect(command.id).toBe("evt-4");
+    expect(command.token).toBe("tok-123");
     expect(command.endAt).toBe(endAt);
     expect(result).toEqual({
       id: "evt-4",

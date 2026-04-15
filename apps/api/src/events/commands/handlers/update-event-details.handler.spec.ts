@@ -1,4 +1,4 @@
-import { NotFoundException } from "@nestjs/common";
+import { ForbiddenException } from "@nestjs/common";
 
 import { EventsRepository } from "../../repository/events.repository";
 import { UpdateEventDetailsCommand } from "../update-event-details.command";
@@ -10,8 +10,13 @@ describe("UpdateEventDetailsCommandHandler", () => {
     const endAt = new Date("2026-06-15T22:00:00.000Z");
     const updatedEvent = { id: "evt-2", detail: { endsAt: endAt } };
     const eventsRepository = {
-      exists: jest.fn().mockResolvedValue(true),
+      findValidEditToken: jest.fn().mockResolvedValue({
+        eventId: "evt-2",
+        userId: "usr-1",
+        event: { id: "evt-2", authorId: "usr-1" },
+      }),
       update: jest.fn().mockResolvedValue(updatedEvent),
+      invalidateEditToken: jest.fn().mockResolvedValue(undefined),
     };
 
     const handler = new UpdateEventDetailsCommandHandler(
@@ -20,6 +25,7 @@ describe("UpdateEventDetailsCommandHandler", () => {
     const result = await handler.execute(
       new UpdateEventDetailsCommand(
         "evt-2",
+        "tok-123",
         "Updated description",
         startAt,
         endAt,
@@ -32,7 +38,7 @@ describe("UpdateEventDetailsCommandHandler", () => {
       ),
     );
 
-    expect(eventsRepository.exists).toHaveBeenCalledWith("evt-2");
+    expect(eventsRepository.findValidEditToken).toHaveBeenCalledWith("tok-123");
     expect(eventsRepository.update).toHaveBeenCalledWith(
       "evt-2",
       { description: "Updated description" },
@@ -47,13 +53,15 @@ describe("UpdateEventDetailsCommandHandler", () => {
         venue: "PGE Narodowy",
       },
     );
+    expect(eventsRepository.invalidateEditToken).toHaveBeenCalledWith("tok-123");
     expect(result).toBe(updatedEvent);
   });
 
-  it("throws NotFoundException when the event does not exist", async () => {
+  it("throws ForbiddenException when token is invalid", async () => {
     const eventsRepository = {
-      exists: jest.fn().mockResolvedValue(false),
+      findValidEditToken: jest.fn().mockResolvedValue(null),
       update: jest.fn(),
+      invalidateEditToken: jest.fn(),
     };
 
     const handler = new UpdateEventDetailsCommandHandler(
@@ -61,8 +69,8 @@ describe("UpdateEventDetailsCommandHandler", () => {
     );
 
     await expect(
-      handler.execute(new UpdateEventDetailsCommand("missing")),
-    ).rejects.toBeInstanceOf(NotFoundException);
+      handler.execute(new UpdateEventDetailsCommand("missing", "bad-token")),
+    ).rejects.toBeInstanceOf(ForbiddenException);
     expect(eventsRepository.update).not.toHaveBeenCalled();
   });
 });

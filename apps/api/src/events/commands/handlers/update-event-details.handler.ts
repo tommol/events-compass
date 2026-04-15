@@ -6,7 +6,7 @@ import {
   UpdateEventDetailsData,
 } from "../../repository/events.repository";
 import { UpdateEventDetailsCommand } from "../update-event-details.command";
-import { NotFoundException } from "@nestjs/common";
+import { ForbiddenException } from "@nestjs/common";
 
 @CommandHandler(UpdateEventDetailsCommand)
 export class UpdateEventDetailsCommandHandler implements ICommandHandler<UpdateEventDetailsCommand> {
@@ -15,6 +15,7 @@ export class UpdateEventDetailsCommandHandler implements ICommandHandler<UpdateE
   async execute(command: UpdateEventDetailsCommand): Promise<EventWithDetail> {
     const {
       id,
+      token,
       description,
       startAt,
       endAt,
@@ -25,6 +26,19 @@ export class UpdateEventDetailsCommandHandler implements ICommandHandler<UpdateE
       address,
       venue,
     } = command;
+
+    const editToken = await this.eventsRepository.findValidEditToken(token);
+    if (!editToken) {
+      throw new ForbiddenException("Invalid or expired edit token");
+    }
+
+    if (editToken.eventId !== id) {
+      throw new ForbiddenException("Edit token does not match event");
+    }
+
+    if (editToken.userId !== editToken.event.authorId) {
+      throw new ForbiddenException("Edit token is not valid for event owner");
+    }
 
     const entity: UpdateEventData = {
       description: description,
@@ -41,12 +55,8 @@ export class UpdateEventDetailsCommandHandler implements ICommandHandler<UpdateE
       venue: venue,
     };
 
-    const existingEvent = await this.eventsRepository.exists(id);
-    if (!existingEvent) {
-      throw new NotFoundException("Event not found");
-    }
-
     const event = await this.eventsRepository.update(id, entity, details);
+    await this.eventsRepository.invalidateEditToken(token);
     return event;
   }
 }
