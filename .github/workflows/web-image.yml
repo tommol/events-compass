@@ -1,0 +1,51 @@
+name: Build and Push Web Image
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - 'apps/web/**'
+      - 'packages/shared/**'
+      - 'pnpm-lock.yaml'
+      - 'pnpm-workspace.yaml'
+      - 'package.json'
+      - '.github/workflows/web-image.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build-and-push:
+    runs-on: ubuntu-latest
+    environment: Development
+    env:
+      SCW_REGISTRY: ${{ vars.SCW_REGISTRY }}
+      SCW_NAMESPACE: ${{ vars.SCW_NAMESPACE }}
+      IMAGE_NAME: events-compass-web
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Validate required env/secrets
+        run: |
+          test -n "${SCW_REGISTRY}" || (echo "Missing SCW_REGISTRY (GitHub Environment Variable)" && exit 1)
+          test -n "${SCW_NAMESPACE}" || (echo "Missing SCW_NAMESPACE (GitHub Environment Variable)" && exit 1)
+          test -n "${{ secrets.SCW_SECRET_KEY }}" || (echo "Missing SCW_SECRET_KEY (GitHub Environment Secret)" && exit 1)
+
+      - name: Login to Scaleway Container Registry
+        run: echo "${{ secrets.SCW_SECRET_KEY }}" | docker login "${SCW_REGISTRY}" -u nologin --password-stdin
+
+      - name: Build and push
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: apps/web/Dockerfile
+          push: true
+          tags: |
+            ${{ env.SCW_REGISTRY }}/${{ env.SCW_NAMESPACE }}/${{ env.IMAGE_NAME }}:${{ github.sha }}
+            ${{ env.SCW_REGISTRY }}/${{ env.SCW_NAMESPACE }}/${{ env.IMAGE_NAME }}:latest

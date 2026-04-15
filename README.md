@@ -111,3 +111,40 @@ Monorepo with:
 docker build -f apps/api/Dockerfile -t events-compass-api:local .
 docker run --rm -p 8080:8080 -e DATABASE_URL="postgresql://..." events-compass-api:local
 ```
+
+## Deploy Web to Scaleway (Serverless Containers)
+
+### Code side (already prepared)
+
+- `apps/web/next.config.js` uses `output: "standalone"`
+- `apps/web/Dockerfile` builds and runs Next.js in production mode
+- `.github/workflows/web-image.yml` builds and pushes web image to Scaleway Registry
+
+### Scaleway checklist
+
+1. Create a new Serverless Container service for web (for example `events-compass-web`).
+2. Set container port to `8080`.
+3. Set env vars:
+   - `NODE_ENV=production`
+   - `PORT=8080`
+   - `NEXT_PUBLIC_API_URL=https://<api-domain>/api/v1`
+4. Deploy image:
+   - `${registry}/${namespace}/events-compass-web:latest`
+5. Enable public endpoint and custom domain (recommended).
+
+### API checklist for web integration
+
+1. In API service, allow CORS from web domain.
+2. Keep API public URL stable, then use it in web `NEXT_PUBLIC_API_URL`.
+3. Verify:
+   - `https://<web-domain>`
+   - `https://<api-domain>/api/v1/health`
+
+### GitHub checklist
+
+1. Reuse the same `Development` environment variables/secrets:
+   - `SCW_REGISTRY` (variable)
+   - `SCW_NAMESPACE` (variable)
+   - `SCW_SECRET_KEY` (secret)
+2. Run workflow `Build and Push Web Image`.
+3. Redeploy web service in Scaleway to the newest image.
