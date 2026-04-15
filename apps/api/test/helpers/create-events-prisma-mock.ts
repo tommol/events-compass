@@ -6,6 +6,8 @@ type StoredEvent = {
   slug: string;
   description?: string;
   status: EventStatus;
+  classifiedAt?: Date;
+  classificationConfidence?: number | null;
 };
 
 type StoredEventDetail = {
@@ -23,6 +25,7 @@ type StoredEventDetail = {
 export const createEventsPrismaMock = () => {
   const events = new Map<string, StoredEvent>();
   const details = new Map<string, StoredEventDetail>();
+  const tags = [{ slug: 'tech' }, { slug: 'meetup' }, { slug: 'conference' }];
   let counter = 0;
   const findEventBySlug = (slug: string): StoredEvent | undefined =>
     [...events.values()].find((event) => event.slug === slug);
@@ -130,10 +133,19 @@ export const createEventsPrismaMock = () => {
               ? existing.description
               : data.description,
           status: data.status === undefined ? existing.status : data.status,
+          classifiedAt:
+            data.classifiedAt === undefined ? existing.classifiedAt : data.classifiedAt,
+          classificationConfidence:
+            data.classificationConfidence === undefined
+              ? existing.classificationConfidence
+              : data.classificationConfidence,
         };
         events.set(existing.id, next);
         return next;
       }),
+    },
+    tag: {
+      findMany: jest.fn(async () => tags),
     },
     eventDetail: {
       upsert: jest.fn(async ({ where, update, create }: any) => {

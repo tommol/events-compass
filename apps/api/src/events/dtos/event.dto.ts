@@ -7,6 +7,13 @@ import { EventCreatedDto } from "./event-created.dto";
 })
 export class EventDto extends EventCreatedDto {
   @ApiPropertyOptional({
+    description: "List of classification tags assigned to the event.",
+    type: [String],
+    example: ["tech", "meetup"],
+  })
+  tags?: string[];
+
+  @ApiPropertyOptional({
     description: "Country where the event takes place.",
     example: "Poland",
   })

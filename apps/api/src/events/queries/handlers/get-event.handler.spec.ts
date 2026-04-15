@@ -14,6 +14,7 @@ describe("GetEventQueryHandler", () => {
         name: "Design Systems",
         slug: "design-systems",
         description: "Talks and panels",
+        tags: [{ slug: "tech" }, { slug: "conference" }],
         detail: {
           country: "Poland",
           city: "Warsaw",
@@ -38,6 +39,7 @@ describe("GetEventQueryHandler", () => {
       name: "Design Systems",
       slug: "design-systems",
       description: "Talks and panels",
+      tags: ["tech", "conference"],
       country: "Poland",
       city: "Warsaw",
       region: "Mazowieckie",

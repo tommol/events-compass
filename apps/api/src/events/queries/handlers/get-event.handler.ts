@@ -19,6 +19,7 @@ export class GetEventQueryHandler implements IQueryHandler<GetEventQuery> {
       name: entity.name,
       slug: entity.slug,
       description: entity.description ?? undefined,
+      tags: entity.tags.map((tag) => tag.slug),
       country: entity.detail?.country ?? undefined,
       city: entity.detail?.city ?? undefined,
       region: entity.detail?.region ?? undefined,

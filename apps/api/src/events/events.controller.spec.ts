@@ -2,6 +2,8 @@ import { CommandBus, QueryBus } from "@nestjs/cqrs";
 
 import { CreateEventCommand } from "./commands/create-event.command";
 import { UpdateEventDetailsCommand } from "./commands/update-event-details.command";
+import { ReclassifyEventCommand } from "./commands/reclassify-event.command";
+import { ReclassifyUnclassifiedEventsCommand } from "./commands/reclassify-unclassified-events.command";
 import { UpdateEventStatusCommand } from "./commands/update-event-status.command";
 import { EventsController } from "./events.controller";
 import { GetEventQuery } from "./queries/get-event.query";
@@ -173,5 +175,28 @@ describe("EventsController", () => {
       slug: "api-summit",
       description: "Archived event",
     });
+  });
+
+  it("triggers event reclassification through the command bus", async () => {
+    commandBus.execute.mockResolvedValue(undefined);
+
+    await expect(controller.reclassifyEvent("ai-meetup")).resolves.toBeUndefined();
+
+    expect(commandBus.execute).toHaveBeenCalledWith(
+      expect.any(ReclassifyEventCommand),
+    );
+    const command = commandBus.execute.mock.calls[0][0] as ReclassifyEventCommand;
+    expect(command.slug).toBe("ai-meetup");
+  });
+
+  it("triggers batch reclassification for unclassified events", async () => {
+    commandBus.execute.mockResolvedValue(3);
+
+    const result = await controller.reclassifyUnclassifiedEvents();
+
+    expect(commandBus.execute).toHaveBeenCalledWith(
+      expect.any(ReclassifyUnclassifiedEventsCommand),
+    );
+    expect(result).toEqual({ queued: 3 });
   });
 });

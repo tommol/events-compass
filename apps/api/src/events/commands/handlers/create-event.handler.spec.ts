@@ -1,41 +1,44 @@
-import { EventsRepository } from "../../repository/events.repository";
-import { CreateEventCommand } from "../create-event.command";
-import { CreateEventCommandHandler } from "./create-event.handler";
+import { EventBus } from '@nestjs/cqrs';
+import { EventsRepository } from '../../repository/events.repository';
+import { CreateEventCommand } from '../create-event.command';
+import { CreateEventCommandHandler } from './create-event.handler';
+import { EventClassifyRequestedEvent } from '../../events/event-classify-requested.event';
 
-describe("CreateEventCommandHandler", () => {
-  it("builds a create payload with slug and author relation", async () => {
+describe('CreateEventCommandHandler', () => {
+  it('builds a create payload with slug and author relation', async () => {
     const savedEvent = {
-      id: "evt-1",
-      name: "Frontend Meetup",
-      slug: "frontend-meetup",
-      description: "Warsaw edition",
+      id: 'evt-1',
+      name: 'Frontend Meetup',
+      slug: 'frontend-meetup',
+      description: 'Warsaw edition',
     };
     const eventsRepository = {
       save: jest.fn().mockResolvedValue(savedEvent),
     };
+    const eventBus = {
+      publish: jest.fn(),
+    };
 
     const handler = new CreateEventCommandHandler(
       eventsRepository as unknown as EventsRepository,
+      eventBus as unknown as EventBus,
     );
     const result = await handler.execute(
-      new CreateEventCommand(
-        "Frontend Meetup",
-        "owner@example.com",
-        "Warsaw edition",
-      ),
+      new CreateEventCommand('Frontend Meetup', 'owner@example.com', 'Warsaw edition'),
     );
 
     expect(eventsRepository.save).toHaveBeenCalledWith({
-      name: "Frontend Meetup",
-      slug: "frontend-meetup",
+      name: 'Frontend Meetup',
+      slug: 'frontend-meetup',
       author: {
         connectOrCreate: {
-          where: { email: "owner@example.com" },
-          create: { email: "owner@example.com" },
+          where: { email: 'owner@example.com' },
+          create: { email: 'owner@example.com' },
         },
       },
-      description: "Warsaw edition",
+      description: 'Warsaw edition',
     });
+    expect(eventBus.publish).toHaveBeenCalledWith(expect.any(EventClassifyRequestedEvent));
     expect(result).toBe(savedEvent);
   });
 });

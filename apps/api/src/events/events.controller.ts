@@ -26,6 +26,8 @@ import { UpdateEventRequestCommand } from "./commands/update-event-request.comma
 import { EditEventRequestDto } from "./dtos/edit-event-request.dto";
 import { SearchEventsQueryDto } from "./dtos/search-events-query.dto";
 import { SearchEventsQuery } from "./queries/search-events.query";
+import { ReclassifyEventCommand } from "./commands/reclassify-event.command";
+import { ReclassifyUnclassifiedEventsCommand } from "./commands/reclassify-unclassified-events.command";
 
 @ApiTags("events")
 @Controller({ path: "events", version: "1" })
@@ -225,5 +227,42 @@ export class EventsController {
   public async requestEditEvent(@Param("slug") slug: string, @Body() request: EditEventRequestDto): Promise<void> {
     const command = new UpdateEventRequestCommand(request.email, slug);
     await this.commandBus.execute(command);
+  }
+
+  @Post(":slug/reclassify")
+  @HttpCode(202)
+  @ApiOperation({
+    summary: "Trigger event reclassification",
+    description: "Triggers an asynchronous reclassification for the selected event.",
+  })
+  @ApiNoContentResponse({
+    description: "Reclassification request accepted.",
+  })
+  @ApiNotFoundResponse({
+    description: "Event not found.",
+  })
+  public async reclassifyEvent(@Param("slug") slug: string): Promise<void> {
+    const command = new ReclassifyEventCommand(slug);
+    await this.commandBus.execute(command);
+  }
+
+  @Post("reclassify-unclassified")
+  @HttpCode(202)
+  @ApiOperation({
+    summary: "Trigger reclassification for unclassified events",
+    description: "Triggers asynchronous reclassification for active events that were not classified yet.",
+  })
+  @ApiOkResponse({
+    description: "Reclassification batch accepted.",
+    schema: {
+      example: {
+        queued: 12,
+      },
+    },
+  })
+  public async reclassifyUnclassifiedEvents(): Promise<{ queued: number }> {
+    const command = new ReclassifyUnclassifiedEventsCommand();
+    const queued = await this.commandBus.execute(command);
+    return { queued };
   }
 }

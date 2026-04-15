@@ -31,16 +31,10 @@ describe('API E2E', () => {
     );
   });
 
-  it('/api/v1/auth/login (POST)', async () => {
-    const response = await request(app.getHttpServer())
+  it('/api/v1/auth/login (POST) should be removed', async () => {
+    await request(app.getHttpServer())
       .post('/api/v1/auth/login')
       .send({ email: 'user@example.com', password: 'password123' })
-      .expect(201);
-
-    expect(response.body).toEqual({
-      accessToken: 'stub-token-user-example-com',
-      expiresInSeconds: 3600,
-      tokenType: 'Bearer',
-    });
+      .expect(404);
   });
 });

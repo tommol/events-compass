@@ -56,7 +56,6 @@ Monorepo with:
 ## API v1
 
 - `GET /api/health`
-- `POST /api/auth/login`
 
 ## Test Commands
 
