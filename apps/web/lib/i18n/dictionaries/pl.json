@@ -1,0 +1,56 @@
+{
+  "common": {
+    "metadata": {
+      "title": "Events Compass",
+      "description": "Frontend monorepo Events Compass"
+    },
+    "brandAlt": "Event Compass",
+    "language": {
+      "switcherLabel": "Zmien jezyk",
+      "english": "English",
+      "polish": "Polski"
+    },
+    "backToHome": "← Wroc do strony glownej"
+  },
+  "landing": {
+    "searchAriaLabel": "Wyszukiwarka wydarzen",
+    "searchLabel": "Wyszukaj wydarzenie",
+    "searchPlaceholder": "Wpisz nazwe miasta, artysty lub wydarzenia",
+    "searchButton": "Szukaj",
+    "actionsAriaLabel": "Dodatkowe akcje",
+    "addEventTitle": "Zglos wydarzenie",
+    "addEventDescription": "Masz event? Dodaj go, aby inni mogli go latwo znalezc.",
+    "addEventCta": "Przejdz do formularza",
+    "subscribeTitle": "Subskrybuj powiadomienia",
+    "subscribeDescription": "Ustaw filtr i otrzymuj alerty o nowych wydarzeniach.",
+    "subscribeCta": "Ustaw subskrypcje"
+  },
+  "addEvent": {
+    "pageTitle": "Dodaj nowe wydarzenie",
+    "sectionTitle": "Zglos swoje wydarzenie",
+    "eventNameLabel": "Nazwa wydarzenia",
+    "eventNamePlaceholder": "Wpisz nazwe wydarzenia",
+    "locationLabel": "Lokalizacja",
+    "locationPlaceholder": "Wpisz lokalizacje wydarzenia",
+    "submit": "Zglos wydarzenie"
+  },
+  "search": {
+    "pageTitle": "Wyniki wyszukiwania",
+    "sectionTitle": "Wyniki wyszukiwania",
+    "emptyMessage": "Nie znaleziono wydarzen. Sprobuj zmienic kryteria wyszukiwania."
+  },
+  "subscribe": {
+    "pageTitle": "Subskrybuj powiadomienia",
+    "sectionTitle": "Otrzymuj powiadomienia o wydarzeniach",
+    "description": "Ustaw filtry i otrzymuj alerty o nowych wydarzeniach zgodnych z Twoimi zainteresowaniami.",
+    "cityLabel": "Miasto",
+    "cityPlaceholder": "Wpisz nazwe miasta",
+    "categoryLabel": "Kategoria wydarzenia",
+    "categoryPlaceholder": "Wybierz kategorie",
+    "categoryMusic": "Muzyka",
+    "categorySports": "Sport",
+    "categoryArt": "Sztuka",
+    "categoryTech": "Technologia",
+    "submit": "Subskrybuj powiadomienia"
+  }
+}

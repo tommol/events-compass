@@ -1,0 +1,56 @@
+{
+  "common": {
+    "metadata": {
+      "title": "Events Compass",
+      "description": "Frontend for Events Compass monorepo"
+    },
+    "brandAlt": "Event Compass",
+    "language": {
+      "switcherLabel": "Change language",
+      "english": "English",
+      "polish": "Polski"
+    },
+    "backToHome": "← Back to Home"
+  },
+  "landing": {
+    "searchAriaLabel": "Event search",
+    "searchLabel": "Search events",
+    "searchPlaceholder": "Type city, artist, or event name",
+    "searchButton": "Search",
+    "actionsAriaLabel": "Additional actions",
+    "addEventTitle": "Submit an event",
+    "addEventDescription": "Have an event? Add it so others can find it quickly.",
+    "addEventCta": "Open form",
+    "subscribeTitle": "Subscribe to notifications",
+    "subscribeDescription": "Set a filter and get alerts about new events.",
+    "subscribeCta": "Set subscription"
+  },
+  "addEvent": {
+    "pageTitle": "Add New Event",
+    "sectionTitle": "Submit Your Event",
+    "eventNameLabel": "Event Name",
+    "eventNamePlaceholder": "Enter event name",
+    "locationLabel": "Location",
+    "locationPlaceholder": "Enter event location",
+    "submit": "Submit Event"
+  },
+  "search": {
+    "pageTitle": "Search Results",
+    "sectionTitle": "Search Results",
+    "emptyMessage": "No events found. Try adjusting your search criteria."
+  },
+  "subscribe": {
+    "pageTitle": "Subscribe to Notifications",
+    "sectionTitle": "Get Event Notifications",
+    "description": "Set up filters and receive alerts about new events matching your interests.",
+    "cityLabel": "City",
+    "cityPlaceholder": "Enter city name",
+    "categoryLabel": "Event Category",
+    "categoryPlaceholder": "Select a category",
+    "categoryMusic": "Music",
+    "categorySports": "Sports",
+    "categoryArt": "Art",
+    "categoryTech": "Technology",
+    "submit": "Subscribe to Notifications"
+  }
+}

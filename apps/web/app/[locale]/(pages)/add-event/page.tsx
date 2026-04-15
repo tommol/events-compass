@@ -1,19 +1,51 @@
+import type { Metadata } from 'next';
 import Link from 'next/link';
+import { notFound } from 'next/navigation';
 
-export default function AddEventPage() {
+import { getDictionary } from '@/lib/i18n/get-dictionary';
+import { isLocale } from '@/lib/i18n/locales';
+import { withLocalePath } from '@/lib/i18n/routing';
+
+type AddEventPageProps = {
+  params: Promise<{ locale: string }>;
+};
+
+export async function generateMetadata({ params }: AddEventPageProps): Promise<Metadata> {
+  const { locale } = await params;
+
+  if (!isLocale(locale)) {
+    return {};
+  }
+
+  const dictionary = getDictionary(locale);
+
+  return {
+    title: dictionary.addEvent.pageTitle,
+  };
+}
+
+export default async function AddEventPage({ params }: AddEventPageProps) {
+  const { locale } = await params;
+
+  if (!isLocale(locale)) {
+    notFound();
+  }
+
+  const dictionary = getDictionary(locale);
+
   return (
     <>
-      <h1 className="page-header-title">Add New Event</h1>
-      <h2 style={{ fontSize: '2rem', marginBottom: '1.5rem' }}>Submit Your Event</h2>
+      <h1 className="page-header-title">{dictionary.addEvent.pageTitle}</h1>
+      <h2 style={{ fontSize: '2rem', marginBottom: '1.5rem' }}>{dictionary.addEvent.sectionTitle}</h2>
       <form style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
         <div style={{ textAlign: 'left' }}>
           <label htmlFor="event-name" style={{ display: 'block', marginBottom: '0.5rem', fontWeight: 600 }}>
-            Event Name
+            {dictionary.addEvent.eventNameLabel}
           </label>
           <input
             id="event-name"
             type="text"
-            placeholder="Enter event name"
+            placeholder={dictionary.addEvent.eventNamePlaceholder}
             style={{
               width: '100%',
               padding: '0.75rem 1rem',
@@ -27,12 +59,12 @@ export default function AddEventPage() {
         </div>
         <div style={{ textAlign: 'left' }}>
           <label htmlFor="event-location" style={{ display: 'block', marginBottom: '0.5rem', fontWeight: 600 }}>
-            Location
+            {dictionary.addEvent.locationLabel}
           </label>
           <input
             id="event-location"
             type="text"
-            placeholder="Enter event location"
+            placeholder={dictionary.addEvent.locationPlaceholder}
             style={{
               width: '100%',
               padding: '0.75rem 1rem',
@@ -57,11 +89,11 @@ export default function AddEventPage() {
             cursor: 'pointer',
           }}
         >
-          Submit Event
+          {dictionary.addEvent.submit}
         </button>
       </form>
       <Link
-        href="/"
+        href={withLocalePath(locale, '/')}
         style={{
           display: 'inline-block',
           marginTop: '2rem',
@@ -70,7 +102,7 @@ export default function AddEventPage() {
           fontWeight: 600,
         }}
       >
-        ← Back to Home
+        {dictionary.common.backToHome}
       </Link>
     </>
   );

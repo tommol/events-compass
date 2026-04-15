@@ -1,19 +1,34 @@
 import Image from 'next/image';
 import Link from 'next/link';
 import React from 'react';
+import { notFound } from 'next/navigation';
 
-export default function PagesLayout({
-  children,
-}: {
+import { LanguageSwitcher } from '@/components/language-switcher';
+import { getDictionary } from '@/lib/i18n/get-dictionary';
+import { isLocale } from '@/lib/i18n/locales';
+import { withLocalePath } from '@/lib/i18n/routing';
+
+type PagesLayoutProps = {
   children: React.ReactNode;
-}) {
+  params: Promise<{ locale: string }>;
+};
+
+export default async function PagesLayout({ children, params }: PagesLayoutProps) {
+  const { locale } = await params;
+
+  if (!isLocale(locale)) {
+    notFound();
+  }
+
+  const dictionary = getDictionary(locale);
+
   return (
     <div className="page-wrapper">
       <header className="page-header">
-        <Link href="/" className="page-header-logo" style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', textDecoration: 'none' }}>
+        <Link href={withLocalePath(locale, '/')} className="page-header-logo" style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', textDecoration: 'none' }}>
           <Image
             src="/logo.png"
-            alt="Event Compass"
+            alt={dictionary.common.brandAlt}
             width={48}
             height={48}
             priority
@@ -27,6 +42,7 @@ export default function PagesLayout({
             </span>
           </span>
         </Link>
+        <LanguageSwitcher locale={locale} dictionary={dictionary} />
       </header>
 
       <main className="page-content">

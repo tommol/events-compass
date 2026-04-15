@@ -1,22 +1,54 @@
+import type { Metadata } from 'next';
 import Link from 'next/link';
+import { notFound } from 'next/navigation';
 
-export default function SubscribePage() {
+import { getDictionary } from '@/lib/i18n/get-dictionary';
+import { isLocale } from '@/lib/i18n/locales';
+import { withLocalePath } from '@/lib/i18n/routing';
+
+type SubscribePageProps = {
+  params: Promise<{ locale: string }>;
+};
+
+export async function generateMetadata({ params }: SubscribePageProps): Promise<Metadata> {
+  const { locale } = await params;
+
+  if (!isLocale(locale)) {
+    return {};
+  }
+
+  const dictionary = getDictionary(locale);
+
+  return {
+    title: dictionary.subscribe.pageTitle,
+  };
+}
+
+export default async function SubscribePage({ params }: SubscribePageProps) {
+  const { locale } = await params;
+
+  if (!isLocale(locale)) {
+    notFound();
+  }
+
+  const dictionary = getDictionary(locale);
+
   return (
     <>
-      <h1 className="page-header-title">Subscribe to Notifications</h1>
-      <h2 style={{ fontSize: '2rem', marginBottom: '1.5rem' }}>Get Event Notifications</h2>
+      <h1 className="page-header-title">{dictionary.subscribe.pageTitle}</h1>
+      <h2 style={{ fontSize: '2rem', marginBottom: '1.5rem' }}>{dictionary.subscribe.sectionTitle}</h2>
       <p style={{ fontSize: '1.1rem', color: '#64748b', marginBottom: '2rem' }}>
-        Set up filters and receive alerts about new events matching your interests.
+        {dictionary.subscribe.description}
       </p>
       <form style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
         <div style={{ textAlign: 'left' }}>
           <label htmlFor="city" style={{ display: 'block', marginBottom: '0.5rem', fontWeight: 600 }}>
-            City
+            {dictionary.subscribe.cityLabel}
           </label>
           <input
             id="city"
             type="text"
-            placeholder="Enter city name"
+            placeholder={dictionary.subscribe.cityPlaceholder}
             style={{
               width: '100%',
               padding: '0.75rem 1rem',
@@ -30,7 +62,7 @@ export default function SubscribePage() {
         </div>
         <div style={{ textAlign: 'left' }}>
           <label htmlFor="category" style={{ display: 'block', marginBottom: '0.5rem', fontWeight: 600 }}>
-            Event Category
+            {dictionary.subscribe.categoryLabel}
           </label>
           <select
             id="category"
@@ -44,11 +76,11 @@ export default function SubscribePage() {
               fontSize: '1rem',
             }}
           >
-            <option value="">Select a category</option>
-            <option value="music">Music</option>
-            <option value="sports">Sports</option>
-            <option value="art">Art</option>
-            <option value="tech">Technology</option>
+            <option value="">{dictionary.subscribe.categoryPlaceholder}</option>
+            <option value="music">{dictionary.subscribe.categoryMusic}</option>
+            <option value="sports">{dictionary.subscribe.categorySports}</option>
+            <option value="art">{dictionary.subscribe.categoryArt}</option>
+            <option value="tech">{dictionary.subscribe.categoryTech}</option>
           </select>
         </div>
         <button
@@ -64,11 +96,11 @@ export default function SubscribePage() {
             cursor: 'pointer',
           }}
         >
-          Subscribe to Notifications
+          {dictionary.subscribe.submit}
         </button>
       </form>
       <Link
-        href="/"
+        href={withLocalePath(locale, '/')}
         style={{
           display: 'inline-block',
           marginTop: '2rem',
@@ -77,7 +109,7 @@ export default function SubscribePage() {
           fontWeight: 600,
         }}
       >
-        ← Back to Home
+        {dictionary.common.backToHome}
       </Link>
     </>
   );
